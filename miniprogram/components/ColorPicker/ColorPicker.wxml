@@ -1,0 +1,23 @@
+<!--components/ColorPicker/ColorPicker.wxml-->
+<view class="colorPickerWapper">
+    
+  <canvas 
+    class="target" 
+    type="2d"
+    id="backgroundCanvas"
+    canvas-id="backgroundCanvas"
+    >
+  </canvas>
+
+  <canvas 
+    class="target" 
+    type="2d"
+    id="dragBlockCanvas"
+    canvas-id="dragBlockCanvas"
+    bindtouchstart="onDragBlockMoveStart"
+    bindtouchmove="onDragBlockMoving"
+    bindtouchend="onDragBlockMoveEnd"
+  >
+  </canvas>
+  
+</view>

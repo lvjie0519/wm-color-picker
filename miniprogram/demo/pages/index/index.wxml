@@ -1,4 +1,6 @@
 <!--index.wxml-->
-<view class="container">
-  <view>hello world</view>
+<view class="pageStyle">
+  <ColorPicker 
+    type='color'
+  />
 </view>
