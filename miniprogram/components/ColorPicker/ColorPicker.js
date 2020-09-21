@@ -64,8 +64,53 @@ Component({
         .exec((res) => {
           this.mDragBlockCanvas = res[0].node;
           this.mDragBlockCanvasContext = this.mDragBlockCanvas.getContext('2d');
-          this.drawDragBlock(100, 100);
+
+          let position = {};
+          if (this.properties.type === 'brightness') {
+            let hsv = this.rgb2hsv(this.properties.initColor);
+            let devide = this.mBgCanvasWidth/100;
+            position.x = Math.round(hsv.s * devide);
+            position.y = Math.round((100 - hsv.v) * devide);
+            console.log('lvjie position', position, 'hsv',hsv, 'width',res[0].width);
+          } else if (this.properties.type === 'color') {
+           
+          }
+          this.checkDrawDragBlockPosition(position);
+          this.drawDragBlock(position.x, position.y, this.properties.initColor);
         });
+    },
+    checkDrawDragBlockPosition(position){
+      // 由于四个角都是圆角，所以要考虑圆角的问题
+      if(position.x > 950 && position.y < 50){
+        // 右上角
+        position.x = 950;
+        position.y = 50;
+      }else if(position.x>950 && position.y>950){
+        // 右下角
+        position.x = 950;
+        position.y = 950;
+      }else if(position.x<50 && position.y>950){
+        // 左下角
+        position.x = 50;
+        position.y = 950;
+      }else if(position.x<50 && position.y<50){
+        // 左上角
+        position.x = 50;
+        position.y = 50;
+      }
+
+      if(position.x > 995){
+        position.x = 995;
+      }
+      if(position.x < 5){
+        position.x = 5;
+      }
+      if(position.y > 995){
+        position.y = 995;
+      }
+      if(position.y < 5){
+        position.y = 5;
+      }
     },
     drawBackgroundCanvas(){
       if (this.properties.type === 'brightness') {
@@ -188,17 +233,20 @@ Component({
       let {x, y} = e.touches[0];
       let result = this.touchPointToCanvasPoint(x, y);
       console.log('lvjie onDragBlockMoveStart result', result);
+      this.checkDrawDragBlockPosition(result);
       this.drawDragBlock(result.x, result.y);
     },
     onDragBlockMoving: function(e){
       let {x, y} = e.touches[0];
       let result = this.touchPointToCanvasPoint(x, y);
+      this.checkDrawDragBlockPosition(result);
       this.drawDragBlock(result.x, result.y);
     },
     onDragBlockMoveEnd: function(e){
       let {x, y} = e.changedTouches[0];
 
       let result = this.touchPointToCanvasPoint(x, y);
+      this.checkDrawDragBlockPosition(result);
       let imageData = this.mBgCanvasContext.getImageData(result.x, result.y, 1, 1);
 
       let rgba = `rgba(${imageData.data[0]},${imageData.data[1]},${imageData.data[2]},${imageData.data[3]})`
@@ -228,10 +276,49 @@ Component({
       return result;
     },
     triggerOnColorChangeEvent(color, type){
+
+      let result = this.rgb2hsv(color);
+      console.log('lvjie result', result);
+
       this.triggerEvent('onColorChange', {
         color: color,
         type: type
       })
+    },
+    rgb2hsv: function (color) {
+      let rgb = color.split(',');
+      let R = parseInt(rgb[0].split('(')[1]);
+      let G = parseInt(rgb[1]);
+      let B = parseInt(rgb[2].split(')')[0]);
+
+      let hsv_red = R / 255, hsv_green = G / 255, hsv_blue = B / 255;
+      let hsv_max = Math.max(hsv_red, hsv_green, hsv_blue),
+        hsv_min = Math.min(hsv_red, hsv_green, hsv_blue);
+      let hsv_h, hsv_s, hsv_v = hsv_max;
+
+      let hsv_d = hsv_max - hsv_min;
+      hsv_s = hsv_max == 0 ? 0 : hsv_d / hsv_max;
+
+      if (hsv_max == hsv_min) hsv_h = 0;
+      else {
+        switch (hsv_max) {
+          case hsv_red:
+            hsv_h = (hsv_green - hsv_blue) / hsv_d + (hsv_green < hsv_blue ? 6 : 0);
+            break;
+          case hsv_green:
+            hsv_h = (hsv_blue - hsv_red) / hsv_d + 2;
+            break;
+          case hsv_blue:
+            hsv_h = (hsv_red - hsv_green) / hsv_d + 4;
+            break;
+        }
+        hsv_h /= 6;
+      }
+      return {
+        h: (hsv_h * 360).toFixed(),
+        s: (hsv_s * 100).toFixed(),
+        v: (hsv_v * 100).toFixed()
+      }
     },
   }
 })
