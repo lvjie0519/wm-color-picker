@@ -32,12 +32,8 @@ Component({
     },
     ready() {
       this.initData();
-      if (this.properties.type === 'brightness') {
-        
-      } else if (this.properties.type === 'color') {
-        this.initTypeColorData();
-        this.initDragBlock();
-      }
+      this.initBackgroudCanvas();
+      this.initDragBlock();
     }
   },
 
@@ -49,11 +45,7 @@ Component({
       this.mBgCanvasWidth = 1000; // 整个背景canvas的宽高
       this.mBgBorderRadius = 50; // 背景圆角
     },
-    initTypeBrightnessData(){
-
-    },
-    initTypeColorData(){
-
+    initBackgroudCanvas(){
       let query = this.createSelectorQuery()
       query.select('#backgroundCanvas')
         .fields({ node: true, size: true })
@@ -77,10 +69,43 @@ Component({
     },
     drawBackgroundCanvas(){
       if (this.properties.type === 'brightness') {
-        
+        this.drawBackgroundCanvasForTypeBrightness();
       } else if (this.properties.type === 'color') {
         this.drawBackgroundCanvasForTypeColor();
       }
+    },
+    drawBackgroundCanvasForTypeBrightness(){
+      this.mBgCanvas.width = this.mBgCanvasWidth;
+      this.mBgCanvas.height = this.mBgCanvasWidth;
+
+      this.mBgCanvasContext.save();
+      this.mBgCanvasContext.beginPath();
+      this.mBgCanvasContext.moveTo(this.mBgBorderRadius, 0);
+      this.mBgCanvasContext.lineTo(this.mBgCanvasWidth-this.mBgBorderRadius, 0);
+      this.mBgCanvasContext.arcTo(this.mBgCanvasWidth, 0, this.mBgCanvasWidth, this.mBgCanvasWidth, this.mBgBorderRadius);
+      this.mBgCanvasContext.lineTo(this.mBgCanvasWidth, this.mBgCanvasWidth-this.mBgBorderRadius);
+      this.mBgCanvasContext.arcTo(this.mBgCanvasWidth, this.mBgCanvasWidth, this.mBgCanvasWidth-this.mBgBorderRadius, this.mBgCanvasWidth, this.mBgBorderRadius);
+      this.mBgCanvasContext.lineTo(this.mBgBorderRadius, this.mBgCanvasWidth);
+      this.mBgCanvasContext.arcTo(0, this.mBgCanvasWidth, 0, 0, this.mBgBorderRadius);
+      this.mBgCanvasContext.lineTo(0, this.mBgBorderRadius);
+      this.mBgCanvasContext.arcTo(0, 0, this.mBgBorderRadius, 0, this.mBgBorderRadius);
+      this.mBgCanvasContext.lineTo(this.mBgBorderRadius, 0);
+      this.mBgCanvasContext.clip();
+
+      this.mBgCanvasContext.fillStyle = this.properties.initColor;
+      this.mBgCanvasContext.fill();
+      
+      let grdH = this.mBgCanvasContext.createLinearGradient(0,0, this.mBgCanvasWidth, 0);   // 水平上的渐变
+      grdH.addColorStop(0, '#FFFFFFFF');
+      grdH.addColorStop(1, '#FFFFFF00');
+      this.mBgCanvasContext.fillStyle = grdH;
+      this.mBgCanvasContext.fill();
+
+      let grdV = this.mBgCanvasContext.createLinearGradient(0,0, 0, this.mBgCanvasWidth);   // 垂直上的渐变
+      grdV.addColorStop(0, '#00000000');
+      grdV.addColorStop(1, '#000000FF');
+      this.mBgCanvasContext.fillStyle = grdV;
+      this.mBgCanvasContext.fill();
     },
     drawBackgroundCanvasForTypeColor(){
       
