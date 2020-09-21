@@ -1,7 +1,7 @@
 <!--index.wxml-->
 <view class="pageStyle">
   <ColorPicker 
-    type='brightness'
-    initColor='rgb(0,255,0)'
+    type='color'
+    initColor='rgb(236,101,158)'
   />
 </view>

@@ -73,7 +73,12 @@ Component({
             position.y = Math.round((100 - hsv.v) * devide);
             console.log('lvjie position', position, 'hsv',hsv, 'width',res[0].width);
           } else if (this.properties.type === 'color') {
-           
+            let hsv = this.rgb2hsv(this.properties.initColor);
+            let max = 69, min=18;
+            let devide = this.mBgCanvasWidth/(max-min);
+            position.x = Math.round((hsv.h/360)*this.mBgCanvasWidth);
+            position.y = this.mBgCanvasWidth - Math.round((hsv.s-min+1) * devide);
+            console.log('lvjie position', position, 'hsv',hsv, 'width',res[0].width);
           }
           this.checkDrawDragBlockPosition(position);
           this.drawDragBlock(position.x, position.y, this.properties.initColor);
